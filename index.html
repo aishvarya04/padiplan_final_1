@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PadiPlan</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f7;--card:#fff;--ink:#14213d;--mut:#5b6785;--line:#d5dce8;--hl:#ffd60a;--ok:#12806f;--bad:#c2410c;--acc:#2b4acb;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1526;--card:#172038;--ink:#e8ecf6;--mut:#9aa6c4;--line:#2a3558;--ok:#3ec9b0;--bad:#fb923c;--acc:#7f9bff}}
+:root[data-theme="dark"]{--bg:#0e1526;--card:#172038;--ink:#e8ecf6;--mut:#9aa6c4;--line:#2a3558;--ok:#3ec9b0;--bad:#fb923c;--acc:#7f9bff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque","Trebuchet MS",sans-serif;margin:0}
+h1{font-size:32px;font-weight:800}h2{font-size:19px;margin-bottom:10px}
+.app{max-width:1000px;margin:0 auto;padding:18px 16px 60px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.mut{color:var(--mut)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px;font-size:13px}
+nav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+nav button{background:none;border:0;color:var(--mut);font:600 15px system-ui;padding:10px 14px;cursor:pointer}
+nav button.on{color:var(--ink);box-shadow:inset 0 -3px var(--hl)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media(max-width:760px){.grid{grid-template-columns:1fr}h1{font-size:26px}}
+textarea,input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+textarea{min-height:96px;resize:vertical}
+.b{background:var(--ink);color:var(--bg);border:0;border-radius:8px;padding:9px 14px;font:600 14px system-ui;cursor:pointer}
+.b.g{background:none;color:var(--ink);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+mark{background:var(--hl);color:#14213d;padding:0 3px;border-radius:3px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.task{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.task:first-child{border-top:0}
+.task.done .tt{text-decoration:line-through;color:var(--mut)}
+.tt{flex:1;min-width:0}
+.task input{width:auto}
+.sub{font-size:12px;font-weight:700;border-radius:6px;padding:1px 7px;background:var(--hl);color:#14213d}
+.late{color:var(--bad);font-weight:600}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.quote{font-size:16px;padding:10px 12px;border-left:3px solid var(--hl);background:var(--bg);border-radius:0 8px 8px 0}
+.big{font:800 68px/1 "Bricolage Grotesque","Trebuchet MS",sans-serif;text-align:center;margin:14px 0;font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--line);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--ok)}
+.chat{height:340px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.msg{max-width:85%;padding:8px 12px;border-radius:12px;border:1px solid var(--line)}
+.msg.me{align-self:flex-end;background:var(--hl);color:#14213d;border-color:transparent}
+.blk{display:flex;gap:12px;padding:8px 0;border-top:1px dashed var(--line)}
+.blk time{width:52px;color:var(--mut);font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%}
+.toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.mascot{width:84px;height:84px;flex:none}.mouth{transform-box:fill-box;transform-origin:center}.mascot.talk .mouth{animation:yap .25s infinite alternate}@keyframes yap{to{transform:scaleY(.3)}}.thumb{max-height:90px;border-radius:8px}
+</style></head><body>
+<div class="app">
+<div class="top"><div><h1>PadiPlan</h1><div class="mut">Homework planned. Distractions off.</div></div>
+<div class="row"><span class="mut" id="who"></span><button class="b g" id="logout">Log out</button><button class="b g" id="theme" aria-label="Toggle theme">Theme</button></div></div>
+<div class="chips" id="chips"></div>
+<nav id="nav"><button data-v="inbox" class="on">Inbox</button><button data-v="plan">Plan</button><button data-v="focus">Focus</button><button data-v="teacher">Teacher</button></nav>
+
+<section id="v-inbox"><div class="grid">
+<div><div class="card"><h2>School message</h2>
+<textarea id="msg" placeholder="Paste a message from your school app, e.g. Maths: do Ex 5.2 sums 1-10, submit tomorrow"></textarea>
+<div class="row" style="margin-top:8px"><button class="b g" id="sample">Try a sample message</button></div>
+<div id="prev" style="margin-top:14px"></div></div>
+<div class="card" style="margin-top:16px"><h2>Add your own work</h2><div class="fields" style="margin-top:0"><input id="oN" placeholder="e.g. Revise Tamil poem" aria-label="Task"><select id="oS" aria-label="Subject"></select><select id="oT" aria-label="Type"></select><input id="oD" type="date" aria-label="Due date"></div><button class="b" id="oadd">Add task</button></div>
+<div class="card" id="feed" style="margin-top:16px"></div></div>
+<div class="card"><div class="row" style="justify-content:space-between"><h2>Your tasks</h2><button class="b g" id="rem">Turn on reminders</button></div><div id="tasks"></div></div>
+</div></section>
+
+<section id="v-plan" hidden><div class="card" style="margin-bottom:16px"><h2>School timetable</h2><textarea id="ttx" placeholder="One line per day, periods separated by commas&#10;Mon: Tamil, English, Maths, Science, Social&#10;Tue: Maths, Maths, English, PT, Computer"></textarea><button class="b" id="ttsave" style="margin-top:8px">Update my week</button></div><div class="card"><div class="row" style="justify-content:space-between"><h2>This week</h2>
+<div class="row"><label class="mut">Study from</label><input type="time" id="wstart" style="width:auto"><label class="mut">for</label><select id="wmins" style="width:auto"><option value="60">1 h</option><option value="90">1.5 h</option><option value="120">2 h</option><option value="180">3 h</option></select></div></div>
+<div class="row" style="margin:12px 0"><input id="cT" placeholder="Add your own work block" style="flex:2" aria-label="Block title"><input id="cD" type="date" style="flex:1" aria-label="Date"><input id="cH" type="time" value="17:00" style="flex:1" aria-label="Time"><button class="b" id="cadd">Add</button></div><div id="planout"></div></div></section>
+
+<section id="v-focus" hidden><div class="grid">
+<div class="card"><div class="row"><select id="ftask" style="flex:2"></select><select id="fdur" style="flex:1"><option value="10">10 min</option><option value="25" selected>25 min</option><option value="45">45 min</option></select></div>
+<div class="big" id="ft">25:00</div><div class="bar"><i id="fbar"></i></div>
+<div class="row" style="margin-top:14px;justify-content:center"><button class="b" id="fgo">Start focus</button><button class="b g" id="freset">Reset</button><button class="b g" id="ffs">Fullscreen</button></div>
+<p class="mut" style="text-align:center">Leaving this tab counts as a distraction. Tab switches: <b id="fd">0</b></p></div>
+<div class="card"><h2>Focus log</h2><div id="flog"></div></div></div></section>
+
+<section id="v-teacher" hidden><div class="card"><div class="row" style="margin-bottom:10px"><svg class="mascot" id="mas" viewBox="0 0 100 100" aria-hidden="true"><path d="M26 22 L38 34 L24 36Z M74 22 L62 34 L76 36Z" fill="#ffb703"/><ellipse cx="50" cy="58" rx="34" ry="34" fill="#ffb703"/><circle cx="36" cy="46" r="10" fill="#fff"/><circle cx="64" cy="46" r="10" fill="#fff"/><circle cx="38" cy="47" r="4.5" fill="#14213d"/><circle cx="62" cy="47" r="4.5" fill="#14213d"/><path d="M45 56 L55 56 L50 64Z" fill="#fb8500"/><rect class="mouth" x="44" y="66" width="12" height="6" rx="3" fill="#c2410c"/></svg><div style="flex:1;min-width:150px"><h2 style="margin:0">Padi, your doubt teacher</h2><div class="mut">Ask any doubt, or send a photo of it.</div></div><select id="tlang" style="width:auto" aria-label="Reply language"><option value="en">English</option><option value="ta">தமிழ்</option></select></div><div class="chat" id="chat" aria-live="polite"></div><div id="tprev"></div><div class="row"><label class="b g" id="camL" style="cursor:pointer">📷 Photo<input id="tcam" type="file" accept="image/*" capture="environment" hidden></label><input id="tin" placeholder="Type your doubt" style="flex:1" aria-label="Your doubt"><button class="b" id="tsend">Ask</button></div></div></section>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,"0");
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+const addDays=n=>{const d=today();d.setDate(d.getDate()+n);return d};
+const fromIso=s=>new Date(s+"T00:00:00");
+const diff=s=>Math.round((fromIso(s)-today())/864e5);
+
+let ME={u:"guest",n:"Guest"};try{ME=JSON.parse(localStorage.getItem("padiplan_user")||"{}");if(!ME.u)ME={u:"guest",n:"Guest"}}catch(e){}
+const SKEY="padiplan_"+ME.u; /* each student gets their own saved data */
+/* ---------- storage ---------- */
+let S={tasks:[],focus:[],win:{start:"18:00",mins:120},ban:[],custom:[],tt:{},seen:[],rem:false};
+try{const r=localStorage.getItem(SKEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+const save=()=>{try{localStorage.setItem(SKEY,JSON.stringify(S))}catch(e){}};
+function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("on"),2600)}
+
+/* ---------- service: message parser ---------- */
+const SUBJ=[["Physics",/physics|force|motion|electricity/i],["Chemistry",/chemistry|acids?|reaction|periodic/i],["Biology",/biology|\bcells?\b|plants?|human body/i],["Maths",/maths?|algebra|geometry|trigonometry|\bsums?\b|\bex(?:ercise)?\.?\s?\d/i],["Science",/science/i],["Tamil",/tamil|தமிழ்/i],["English",/english|essay|grammar|poem/i],["Social",/social|history|geography|civics/i],["Computer",/computer|coding|\bcs\b/i]];
+const TYPES=[["Test",/\b(?:unit |slip |class )?test\b|exam|quiz/i],["Assignment",/assignment/i],["Project",/project|model|chart/i]];
+const EST={Homework:40,Assignment:90,Test:120,Project:120};
+const DN=["sun","mon","tue","wed","thu","fri","sat"],MN=["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+function findDate(t){let m;
+ if(m=t.match(/\b(?:today|tonight)\b/i))return[iso(today()),m[0]];
+ if(m=t.match(/\b(?:tomorrow|tmrw)\b/i))return[iso(addDays(1)),m[0]];
+ if(m=t.match(/\bin (\d+) days?\b/i))return[iso(addDays(+m[1])),m[0]];
+ if(m=t.match(/\b(sunday|monday|tuesday|wednesday|thursday|friday|saturday|mon|tues?|wed|thu(?:rs?)?|fri|sat|sun)\b/i)){
+  const i=DN.indexOf(m[1].slice(0,3).toLowerCase()),d=(i-new Date().getDay()+7)%7||7;return[iso(addDays(d)),m[0]]}
+ if(m=t.match(/\b(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{2,4}))?\b/)){
+  const y=m[3]?(+m[3]<100?2000+ +m[3]:+m[3]):today().getFullYear();return[iso(new Date(y,+m[2]-1,+m[1])),m[0]]}
+ if(m=t.match(/\b(\d{1,2})(?:st|nd|rd|th)? (jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b/i))
+  return[iso(new Date(today().getFullYear(),MN.indexOf(m[2].toLowerCase()),+m[1])),m[0]];
+ return[iso(addDays(1)),"",true]}
+function parse(text){
+ const sm=SUBJ.find(([,r])=>r.test(text)),subject=sm?sm[0]:"General",sk=sm?text.match(sm[1])[0]:"";
+ const tm=TYPES.find(([,r])=>r.test(text)),type=tm?tm[0]:"Homework",tk=tm?text.match(tm[1])[0]:"";
+ const [due,dk,guess]=findDate(text);
+ const details=text.match(/\b(?:ex(?:ercise)?\.?\s?[\d.]+|ch(?:apters?)?\.?\s?\d+(?:\s?(?:&|and|-)\s?\d+)?|pages?\s?\d+(?:-\d+)?)/ig)||[];
+ const title=text.replace(/\s+/g," ").split(/[.!\n]/)[0].slice(0,70)||text.slice(0,70);
+ return{subject,type,due,guess:!!guess,details,title,marks:[sk,tk,dk,...details]}}
+
+/* ---------- service: planner ---------- */
+function makePlan(){
+ const [h,mi]=S.win.start.split(":").map(Number),B=40,cap=Math.max(1,Math.floor(S.win.mins/B));
+ const open=S.tasks.filter(t=>!t.done).map(t=>({t,left:t.est-t.spent,due:diff(t.due)})).filter(x=>x.left>0).sort((a,b)=>a.due-b.due);
+ const days=[];
+ for(let d=0;d<7;d++){const bl=[];let go=true;
+  while(bl.length<cap&&go){go=false;
+   for(const x of open){if(bl.length>=cap)break;
+    if(x.left>0&&!S.ban.includes(x.t.id+"|"+iso(addDays(d)))&&(x.due>d||(d===0&&x.due<=0))){x.left-=B;bl.push(x.t);go=true}}}
+  days.push({date:addDays(d),blocks:bl.map((t,i)=>{const m=h*60+mi+i*B;return{t,time:pad(Math.floor(m/60))+":"+pad(m%60)}})})}
+ return{days,over:open.filter(x=>x.left>0).map(x=>x.t)}}
+
+/* ---------- service: focus ---------- */
+const F={run:false,left:1500,total:1500,end:0,dist:0,timer:null};
+function fShow(){const m=Math.floor(F.left/60),s=F.left%60;
+ $("#ft").textContent=pad(m)+":"+pad(s);$("#fbar").style.width=(100*(1-F.left/F.total))+"%";
+ $("#fgo").textContent=F.run?"Pause":F.left<F.total?"Resume":"Start focus";$("#fd").textContent=F.dist;
+ document.title=F.run?pad(m)+":"+pad(s)+" · PadiPlan":"PadiPlan"}
+function fTick(){F.left=Math.max(0,Math.ceil((F.end-Date.now())/1000));
+ if(F.left===0){clearInterval(F.timer);F.run=false;fDone()}fShow()}
+function fDone(){const mins=F.total/60,score=Math.max(0,100-15*F.dist),id=$("#ftask").value;
+ S.focus.push({date:iso(today()),mins,dist:F.dist,score});
+ const t=S.tasks.find(x=>x.id==id);if(t)t.spent+=mins;
+ save();toast("Session done: "+mins+" min, focus score "+score);F.left=F.total;F.dist=0;renderAll()}
+document.addEventListener("visibilitychange",()=>{if(F.run&&document.hidden){F.dist++;fShow();toast("Distraction logged. Come back and keep going.")}});
+
+/* ---------- service: doubt teacher ---------- */
+const H=[],FALL=["Let's start small. What does the question ask, in your own words?","Good. List the steps you would try, even a rough guess. Which step is hardest?","Nudge: split it into given, method and check. Do the first part and send it to me."];
+let SM=null,PH=null,busy=false,fl=0;
+function sys(l){return "You are Padi, a friendly cartoon owl teacher for a school student in Tamil Nadu. The student asks a doubt, maybe with a photo. Explain step by step in short, simple sentences like a kind teacher. "+(l==="ta"?"Reply ONLY in natural, simple spoken Tamil in Tamil script, the everyday way a teacher talks in class, not bookish or formal Tamil. Keep common English technical words where teachers normally use them. ":"Reply in simple English. ")+"Do not assume the doubt is about any particular homework. For exercise-style questions give a hint first and ask the student to try, then explain fully if they ask. Max 120 words. No markdown, no emojis."}
+function speak(t){try{speechSynthesis.cancel();const ta=$("#tlang").value==="ta",u=new SpeechSynthesisUtterance(t);u.lang=ta?"ta-IN":"en-IN";
+ const v=speechSynthesis.getVoices().find(x=>x.lang.replace("_","-").toLowerCase().startsWith(ta?"ta":"en-in"));
+ if(v)u.voice=v;else if(ta)toast("No Tamil voice on this device. Install one in system settings for spoken Tamil.");
+ u.onstart=()=>$("#mas").classList.add("talk");u.onend=()=>$("#mas").classList.remove("talk");speechSynthesis.speak(u)}catch(e){toast("Voice is not supported in this browser")}}
+async function send(){if(busy)return;const v=$("#tin").value.trim();if(!v&&!PH)return;const ph=PH;$("#tin").value="";PH=null;$("#tprev").innerHTML="";
+ say("me",v||"Please explain this photo.",ph);busy=true;$("#mas").classList.add("talk");const w=say("ai","Thinking...");let out;
+ try{if(!SM)throw{code:"na"};
+  const r=await SM([...H.slice(-6),{role:"user",content:sys($("#tlang").value)+"\n\nStudent's doubt: "+(v||"Please explain the doubt in the attached photo.")}],{images:ph||undefined,cache:false,onText:o=>{w.firstChild.textContent=o.text}});out=r.text}
+ catch(e){out=!SM?FALL[Math.min(fl++,2)]:e&&e.code==="not_granted"?"Please allow access when asked, so I can answer your doubt.":"I could not answer right now. Please try again."}
+ w.firstChild.textContent=out;H.push({role:"user",content:v||"(photo doubt)"},{role:"assistant",content:out});busy=false;$("#mas").classList.remove("talk")}
+
+/* ---------- service: reminders ---------- */
+const sent=new Set();
+function notify(t,b){try{if("Notification"in window&&Notification.permission==="granted"){new Notification(t,{body:b});return}}catch(e){}toast(t+": "+b)}
+function remCheck(){if(!S.rem)return;const n=new Date(),k=iso(n),now=n.getHours()*60+n.getMinutes(),{days}=makePlan();
+ [...days[0].blocks.map(b=>({time:b.time,t:b.t.subject+": "+b.t.title})),...S.custom.filter(c=>c.date===k).map(c=>({time:c.time,t:c.title}))].forEach(b=>{
+  const [h,m]=b.time.split(":").map(Number),id=k+b.time+b.t;if(h*60+m-now===5&&!sent.has(id)){sent.add(id);notify("Study starts in 5 minutes",b.t)}});
+ const o=S.tasks.filter(t=>!t.done&&diff(t.due)<=1),id2=k+"due"+n.getHours();
+ if(n.getHours()>=18&&o.length&&!sent.has(id2)){sent.add(id2);notify("Due soon",o.map(t=>t.title).join(", "))}}
+setInterval(remCheck,30000);
+function parseTT(t){const o={};t.split("\n").forEach(l=>{const m=l.match(/^\s*([a-z]{3})[a-z]*\s*[:\-]\s*(.+)$/i);if(m&&DN.includes(m[1].toLowerCase()))o[m[1].toLowerCase()]=m[2].split(/[,;]/).map(s=>s.trim()).filter(Boolean)});return o}
+const ttText=()=>["mon","tue","wed","thu","fri","sat"].filter(k=>S.tt[k]).map(k=>k[0].toUpperCase()+k.slice(1)+": "+S.tt[k].join(", ")).join("\n");
+
+/* ---------- UI ---------- */
+let P=null;
+const dueLabel=s=>{const d=diff(s);return d<0?'<span class="late">Overdue</span>':d===0?"Due today":d===1?"Due tomorrow":"Due in "+d+" days"};
+const opt=(arr,v)=>arr.map(a=>`<option${a===v?" selected":""}>${a}</option>`).join("");
+const SUBS=[...SUBJ.map(s=>s[0]),"General"],TYS=Object.keys(EST);
+function renderPrev(){const t=$("#msg").value.trim(),box=$("#prev");
+ if(!t){P=null;box.innerHTML='<p class="mut" style="margin:0">PadiPlan reads the message and finds the subject, task type and deadline for you.</p>';return}
+ P=parse(t);let h=esc(t);P.marks.filter(Boolean).forEach(k=>{const e=esc(k);h=h.replace(e,"<mark>"+e+"</mark>")});
+ box.innerHTML=`<div class="quote">${h}</div><div class="fields">
+ <select id="pS" aria-label="Subject">${opt(SUBS,P.subject)}</select><select id="pT" aria-label="Type">${opt(TYS,P.type)}</select>
+ <input id="pD" type="date" value="${P.due}" aria-label="Due date"><input id="pN" value="${esc(P.title)}" aria-label="Title"></div>
+ ${P.guess?'<p class="mut" style="margin:0 0 10px">No deadline found, so tomorrow is assumed. Change the date if needed.</p>':""}
+ <button class="b" id="padd">Add to plan</button>`;
+ $("#pS").onchange=e=>P.subject=e.target.value;$("#pT").onchange=e=>P.type=e.target.value;
+ $("#pD").onchange=e=>P.due=e.target.value;$("#pN").oninput=e=>P.title=e.target.value;
+ $("#padd").onclick=()=>{addTask(P);$("#msg").value="";renderPrev();toast("Added to your plan")}}
+function addTask(p){S.tasks.push({id:Date.now()+Math.random(),subject:p.subject,type:p.type,title:p.title,due:p.due,details:p.details,est:EST[p.type],spent:0,done:false});save();renderAll()}
+const FEED=["Maths: Complete Ex 5.2 sums 1-10. Submit tomorrow. - Mrs. Latha","Science unit test on Friday, chapters 3 & 4. Prepare well.","English assignment: write a 200 word essay on Digital Wellbeing. Submit in 5 days."];
+function renderFeed(){const f=$("#feed"),nw=FEED.filter(m=>!S.seen.includes(m));
+ f.innerHTML='<h2>School app (demo)</h2>'+FEED.map(m=>`<p style="margin:0 0 8px${S.seen.includes(m)?";color:var(--mut)":""}">${esc(m)}</p>`).join("")+`<button class="b" id="impall">${nw.length?"Sync "+nw.length+" new message"+(nw.length>1?"s":""):"Up to date"}</button>`;
+ $("#impall").onclick=()=>{if(!nw.length)return;nw.forEach(m=>{S.seen.push(m);addTask(parse(m))});toast(nw.length+" tasks synced and planned")}}
+function renderTasks(){const L=[...S.tasks].sort((a,b)=>a.done-b.done||a.due.localeCompare(b.due));
+ $("#tasks").innerHTML=L.length?L.map(t=>`<div class="task${t.done?" done":""}"><input type="checkbox" data-d="${t.id}"${t.done?" checked":""} aria-label="Done"><div class="tt"><span class="sub">${t.subject}</span> ${esc(t.title)}<div class="mut" style="font-size:13px">${t.type} · ${t.done?"Completed":dueLabel(t.due)}${t.spent?" · "+t.spent+" min studied":""}</div></div><button class="b g" data-x="${t.id}" aria-label="Delete task">Remove</button></div>`).join(""):'<p class="mut">No tasks yet. Paste a school message or load the sample feed to start.</p>';
+ $("#tasks").querySelectorAll("[data-d]").forEach(e=>e.onchange=()=>{const t=S.tasks.find(x=>x.id==e.dataset.d);t.done=e.checked;save();renderAll()});
+ $("#tasks").querySelectorAll("[data-x]").forEach(e=>e.onclick=()=>{S.tasks=S.tasks.filter(x=>x.id!=e.dataset.x);save();renderAll()})}
+function renderPlan(){const {days,over}=makePlan();$("#wstart").value=S.win.start;$("#wmins").value=S.win.mins;
+ $("#planout").innerHTML=(over.length?`<p class="late">Not enough time for: ${over.map(t=>esc(t.title)).join("; ")}. Add study time above.</p>`:"")+
+ days.map((d,i)=>{const k=iso(d.date),per=S.tt[DN[d.date.getDay()]]||[],cu=S.custom.filter(c=>c.date===k).map(c=>({c,time:c.time})),all=[...d.blocks,...cu].sort((a,b)=>a.time.localeCompare(b.time));
+ return `<div style="margin-top:14px"><h3>${i===0?"Today":d.date.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short"})}</h3>${per.length?`<div class="mut" style="font-size:13px">School: ${per.map((p,j)=>(j+1)+". "+esc(p)).join(" · ")}</div>`:""}`+
+ (all.length?all.map(b=>b.c?`<div class="blk"><time>${b.time}</time><div class="tt">${esc(b.c.title)}<div class="mut" style="font-size:13px">Your own block</div></div><button class="b g" data-c="${b.c.id}">Delete</button></div>`:`<div class="blk"><time>${b.time}</time><div class="tt"><span class="sub">${b.t.subject}</span> ${esc(b.t.title)}<div class="mut" style="font-size:13px">40 min · ${b.t.type==="Test"?"Revision":"Work"}</div></div><button class="b g" data-b="${b.t.id}|${k}">Delete</button></div>`).join(""):'<p class="mut" style="margin:4px 0">Free day. Nothing to plan.</p>')+"</div>"}).join("");
+ $("#planout").querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>{S.custom=S.custom.filter(c=>c.id!=e.dataset.c);save();renderAll()});
+ $("#planout").querySelectorAll("[data-b]").forEach(e=>e.onclick=()=>{S.ban.push(e.dataset.b);save();renderAll();toast("Removed from that day. The rest of the plan adjusted.")})}
+function taskOpts(first){return(first?`<option value="">${first}</option>`:"")+S.tasks.filter(t=>!t.done).map(t=>`<option value="${t.id}">${t.subject}: ${esc(t.title)}</option>`).join("")}
+function renderFocus(){const cur=$("#ftask").value;$("#ftask").innerHTML=taskOpts("General focus");$("#ftask").value=cur;
+ const td=S.focus.filter(f=>f.date===iso(today())),min=td.reduce((a,f)=>a+f.mins,0);
+ $("#flog").innerHTML=`<p style="margin-top:0"><b>${min} min</b> focused today in ${td.length} session${td.length===1?"":"s"}.</p>`+(S.focus.slice(-6).reverse().map(f=>`<div class="blk"><time>${f.date.slice(5)}</time><div>${f.mins} min · score ${f.score} · ${f.dist} tab switch${f.dist===1?"":"es"}</div></div>`).join("")||'<p class="mut">Finish a session to see it here.</p>');fShow()}
+function say(who,text,img){const c=$("#chat"),d=document.createElement("div"),s=document.createElement("span");d.className="msg"+(who==="me"?" me":"");s.textContent=text;d.appendChild(s);
+ if(img){const i=document.createElement("img");i.className="thumb";i.alt="Doubt photo";i.src=URL.createObjectURL(img);i.style.display="block";d.appendChild(i)}
+ if(who!=="me"){const b=document.createElement("button");b.className="b g";b.textContent="Read aloud";b.style.cssText="display:block;margin-top:6px;padding:3px 9px";b.onclick=()=>speak(s.textContent);d.appendChild(b)}
+ c.appendChild(d);c.scrollTop=c.scrollHeight;return d}
+function renderAll(){const o=S.tasks.filter(t=>!t.done),soon=o.filter(t=>diff(t.due)<=2).length,min=S.focus.filter(f=>f.date===iso(today())).reduce((a,f)=>a+f.mins,0);
+ $("#chips").innerHTML=`<span class="chip"><b>${o.length}</b> open tasks</span><span class="chip"><b>${soon}</b> due within 2 days</span><span class="chip"><b>${min}</b> focus min today</span>`;
+ renderFeed();renderTasks();renderPlan();renderFocus();$("#rem").textContent=S.rem?"Reminders on":"Turn on reminders"}
+
+/* ---------- events ---------- */
+$("#nav").onclick=e=>{const v=e.target.dataset.v;if(!v)return;
+ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b===e.target));
+ ["inbox","plan","focus","teacher"].forEach(n=>$("#v-"+n).hidden=n!==v)};
+$("#msg").oninput=renderPrev;
+$("#sample").onclick=()=>{$("#msg").value=FEED[1];renderPrev()};
+$("#wstart").onchange=e=>{S.win.start=e.target.value||"18:00";save();renderPlan()};
+$("#wmins").onchange=e=>{S.win.mins=+e.target.value;save();renderPlan()};
+$("#fdur").onchange=e=>{if(!F.run){F.total=F.left=+e.target.value*60;fShow()}};
+$("#fgo").onclick=()=>{if(F.run){F.run=false;clearInterval(F.timer);fShow();return}
+ if(F.left<=0)F.left=F.total;F.run=true;F.end=Date.now()+F.left*1000;F.timer=setInterval(fTick,500);fShow()};
+$("#freset").onclick=()=>{F.run=false;clearInterval(F.timer);F.left=F.total=+$("#fdur").value*60;F.dist=0;fShow()};
+$("#ffs").onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}catch(e){toast("Fullscreen is not available here")}};
+$("#tsend").onclick=send;$("#tin").onkeydown=e=>{if(e.key==="Enter")send()};
+$("#tcam").onchange=e=>{const f=e.target.files[0];if(!f)return;PH=f;$("#tprev").innerHTML='<img class="thumb" src="'+URL.createObjectURL(f)+'" alt="Doubt photo"> <button class="b g" id="tpx">Remove photo</button>';$("#tpx").onclick=()=>{PH=null;$("#tprev").innerHTML=""}};
+$("#oadd").onclick=()=>{const n=$("#oN").value.trim();if(!n){toast("Type what you want to work on");return}addTask({subject:$("#oS").value,type:$("#oT").value,title:n,due:$("#oD").value||iso(addDays(1)),details:[]});$("#oN").value="";toast("Added to your plan")};
+$("#cadd").onclick=()=>{const t=$("#cT").value.trim();if(!t)return;S.custom.push({id:Date.now(),title:t,date:$("#cD").value||iso(today()),time:$("#cH").value||"17:00"});$("#cT").value="";save();renderAll()};
+$("#ttsave").onclick=()=>{S.tt=parseTT($("#ttx").value);save();renderAll();toast(Object.keys(S.tt).length?"Timetable saved. Your week is updated.":"No days found. Use lines like Mon: Maths, Tamil")};
+$("#rem").onclick=async()=>{if(S.rem){S.rem=false;save();renderAll();return}let p="denied";try{p=await Notification.requestPermission()}catch(e){}
+ S.rem=true;save();renderAll();if(p==="granted")notify("PadiPlan","Reminders are on. Keep this tab open.");else toast("Notifications are blocked, so reminders will show inside the app.")};
+$("#theme").onclick=()=>{const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=dark?"light":"dark"};
+$("#who").textContent="Hi, "+ME.n.split(" ")[0];$("#logout").onclick=async()=>{try{await fetch("/api/logout",{method:"POST"})}catch(e){}localStorage.removeItem("padiplan_user");location="/login"};$("#oS").innerHTML=opt(SUBS,"General");$("#oT").innerHTML=opt(TYS,"Homework");$("#oD").value=iso(addDays(1));$("#cD").value=iso(today());$("#ttx").value=ttText();
+say("ai","Hi "+ME.n.split(" ")[0]+"! I am Padi. Ask me any doubt. You can type it or send a photo.");
+SM=async(turns,o)=>{let image=null;const f=o&&o.images;
+ if(f){const bm=await createImageBitmap(f),sc=Math.min(1,1280/Math.max(bm.width,bm.height)),cv=document.createElement("canvas");cv.width=bm.width*sc;cv.height=bm.height*sc;cv.getContext("2d").drawImage(bm,0,0,cv.width,cv.height);image={media_type:"image/jpeg",data:cv.toDataURL("image/jpeg",.8).split(",")[1]}}
+ const r=await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:turns,image})});
+ if(r.status===401){location="/login";return}if(!r.ok)throw{code:"error"};const j=await r.json();if(o&&o.onText)o.onText({text:j.text});return{text:j.text}};
+$("#camL").hidden=false;
+renderPrev();renderAll();
+</script></body></html>
